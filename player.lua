@@ -34,22 +34,30 @@ function player.load()
     player.y = love.graphics.getHeight() / 2
     player.image = love.graphics.newImage("images/player_blue_armor_idle_with_gun.png")
 
-    frame = 7
+    frame = 3
 
-    player.frames[1] = love.graphics.newQuad(0, 0, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[2] = love.graphics.newQuad(32, 0, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[3] = love.graphics.newQuad(0, 32, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[4] = love.graphics.newQuad(32, 32, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[5] = love.graphics.newQuad(0, 64, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[6] = love.graphics.newQuad(32, 64, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[7] = love.graphics.newQuad(0, 96, 32, 32, player.image:getWidth(), player.image:getHeight())
-    player.frames[8] = love.graphics.newQuad(32, 96, 32, 32, player.image:getWidth(), player.image:getHeight())
+    local l, c
+    id = 1
+    for l = 1, 4 do
+        for c = 1, 2 do
+            player.frames[id] =
+                love.graphics.newQuad(
+                (c - 1) * 32,
+                (l - 1) * 32,
+                32,
+                32,
+                player.image:getWidth(),
+                player.image:getHeight()
+            )
+            id = id + 1
+        end
+    end
 end
 
 function player.animations(dt)
     frame = frame + 2 * dt
-    if frame >= player.status[PLAYER_IDLE_BACKWARDS].frameEnd + 1 then
-        frame = player.status[PLAYER_IDLE_BACKWARDS].frameStart
+    if frame >= player.status[PLAYER_IDLE_FORWARD].frameEnd + 1 then
+        frame = player.status[PLAYER_IDLE_FORWARD].frameStart
     end
 end
 
