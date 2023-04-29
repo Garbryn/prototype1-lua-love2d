@@ -1,0 +1,3 @@
+local enemies = {}
+
+return enemies

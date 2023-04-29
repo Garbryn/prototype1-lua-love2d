@@ -3,6 +3,15 @@ local player = {}
 PLAYER_WIDTH = 32
 PLAYER_HEIGHT = 32
 
+PLAYER_IDLE = 1
+PLAYER_WALK = 2
+PLAYER_SHOOT = 3
+
+player.status = {}
+player.status[PLAYER_IDLE] = {}
+player.status[PLAYER_WALK] = {}
+player.status[PLAYER_SHOOT] = {}
+
 local sprites = require("sprites")
 
 function player.load()
@@ -20,7 +29,7 @@ function playerAnimations(dt)
     end
 end
 
-function playerControles(dt)
+function playerControls(dt)
     if love.keyboard.isDown("up") and player.y >= 0 + PLAYER_HEIGHT / 2 then
         player.y = player.y - 100 * dt
     elseif love.keyboard.isDown("right") and player.x <= love.graphics.getWidth() - PLAYER_WIDTH / 2 then

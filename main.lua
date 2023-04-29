@@ -1,6 +1,7 @@
 require("init")
 
 local player = require("player")
+local enemies = require("enemies")
 
 function love.load()
     ----------
@@ -11,7 +12,7 @@ end
 function love.update(dt)
     ----------
     playerAnimations(dt)
-    playerControles(dt)
+    playerControls(dt)
     ----------
 end
 
