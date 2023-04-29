@@ -11,8 +11,7 @@ end
 
 function love.update(dt)
     ----------
-    playerAnimations(dt)
-    playerControls(dt)
+    player.update(dt)
     ----------
 end
 

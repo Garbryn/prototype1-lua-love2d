@@ -5,7 +5,6 @@ function createSprite(pNameImage, pX, pY)
     sprite.image = love.graphics.newImage("images/" .. pNameImage .. ".png")
     sprite.x = pX
     sprite.y = pY
-    sprite.frame = 0
 
     sprite.listFrames = {}
 
