@@ -10,8 +10,8 @@ end
 
 function love.update(dt)
     ----------
-    player.animations(dt)
-    player.move(dt)
+    playerAnimations(dt)
+    playerControles(dt)
     ----------
 end
 

@@ -6,19 +6,21 @@ PLAYER_HEIGHT = 32
 local sprites = require("sprites")
 
 function player.load()
-    player = createSprite("player_blue_armor_idle_with_gun", IDLE_FORWARD, 3, 4)
     player.x = love.graphics.getWidth() / 2
     player.y = love.graphics.getHeight() / 2
+    player = createSprite("player_blue_armor_idle_with_gun", player.x, player.y)
+    player.frame = 1
+    print(player.frame)
 end
 
-function player.animations(dt)
-    frame = frame + 2 * dt
-    if frame >= player.status[IDLE_FORWARD].frameEnd + 1 then
-        frame = player.status[IDLE_FORWARD].frameStart
+function playerAnimations(dt)
+    player.frame = player.frame + 2 * dt
+    if player.frame >= 2 + 1 then
+        player.frame = 1
     end
 end
 
-function player.move(dt)
+function playerControles(dt)
     if love.keyboard.isDown("up") and player.y >= 0 + PLAYER_HEIGHT / 2 then
         player.y = player.y - 100 * dt
     elseif love.keyboard.isDown("right") and player.x <= love.graphics.getWidth() - PLAYER_WIDTH / 2 then
@@ -31,9 +33,10 @@ function player.move(dt)
 end
 
 function player.draw()
+    local currentFrame = math.floor(player.frame)
     love.graphics.draw(
         player.image,
-        player.frames[math.floor(frame)],
+        player.listFrames[currentFrame],
         player.x,
         player.y,
         0,
@@ -44,7 +47,7 @@ function player.draw()
     )
 
     love.graphics.circle("fill", player.x, player.y, 2)
-    love.graphics.print(math.floor(frame))
+    love.graphics.print(math.floor(player.frame))
 end
 
 return player
