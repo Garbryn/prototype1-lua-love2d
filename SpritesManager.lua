@@ -30,7 +30,7 @@ function DrawSprites()
         love.graphics.setColor(1, 1, 1, 1)
     end
     ----------
-    love.graphics.print("Sprites : " .. #listSprites, 10, 10)
+    love.graphics.print("Sprites : " .. #listSprites, 10, 1)
 end
 
 return SpriteManager
