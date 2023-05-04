@@ -11,7 +11,7 @@
     \  \::/        /__/:/       \  \::/       \  \::/      \__\/                   \  \:\         /__/:/                \  \::/          \__\/  
      \__\/         \__\/         \__\/         \__\/                                \__\/         \__\/                  \__\/                  
 
-    by Garbryn
+    by Garbryn - 2023
     ]] --
 
 -- Débogueur Visual Studio Code tomblind.local-lua-debugger-vscode
@@ -30,9 +30,25 @@ function math.angle(x1, y1, x2, y2)
     return math.atan2(y2 - y1, x2 - x1)
 end
 
+function collide(a1, a2)
+    if (a1 == a2) then
+        return false
+    end
+    local dx = a1.x - a2.x
+    local dy = a1.y - a2.y
+    if (math.abs(dx) < a1.image:getWidth() / 2 + a2.image:getWidth() / 2) then
+        if (math.abs(dy) < a1.image:getHeight() / 2 + a2.image:getHeight() / 2) then
+            return true
+        end
+    end
+    return false
+end
+
 local player = {}
+player.speed = 0
 
 local listEnemies = {}
+local listShoots = {}
 
 local SpritesManager = require("SpritesManager")
 local ShootManager = require("ShootManager")
@@ -46,6 +62,7 @@ end
 
 function CreateEnemy(pType, pX, pY)
     local nameImage
+
     if pType == 1 then
         nameImage = "enemy_1"
     elseif pType == 2 then
@@ -58,19 +75,29 @@ function CreateEnemy(pType, pX, pY)
     enemy.type = pType
     enemy.timerShoot = 0
     enemy.angle = 0
+    enemy.speed = 0
+
+    if pType == 1 then
+        enemy.speed = 100
+    elseif pType == 2 then
+        enemy.speed = 150
+    elseif pType == 3 then
+        enemy.speed = 200
+    end
 
     table.insert(listEnemies, enemy)
 end
 
 function StartGame()
     ----------
-    player = CreateSprites("player", screenWidth / 2, screenHeight / 2, 100)
+    player = CreateSprites("player", screenWidth / 2, screenHeight / 2)
+    player.speed = 200
     ----------
     CreateEnemy(1, 150, 200)
-    ----------
     CreateEnemy(2, 200, 400)
-    ----------
     CreateEnemy(3, 500, 50)
+    ----------
+    timer = 10
     ----------
 end
 
@@ -98,44 +125,63 @@ end
 
 function love.update(dt)
     ----------
-    UpdateShoot(dt)
+    UpdateShoot(listShoots, screenWidth, screenHeight, dt)
     ----------
+    timer = timer - dt
     local n
-    for n = #listEnemies, 1, -1 do
-        local enemy = listEnemies[n]
-        timer = timer - dt
-        if enemy.type == 1 then
-            if timer <= 0 then
-                timer = math.random(1, 2)
-                local sx, sy
-                local angle
-                angle = math.angle(enemy.x, enemy.y, player.x, player.y)
-                sx = 150 * math.cos(angle)
-                sy = 150 * math.sin(angle)
-                CreateShoot("enemy", enemy.x, enemy.y, sx, sy)
-            end
-        elseif enemy.type == 2 then
-            if timer <= 0 then
-                timer = math.random(3, 5)
-                local sx, sy
-                local angle
-                angle = math.angle(enemy.x, enemy.y, player.x, player.y)
-                sx = 200 * math.cos(angle)
-                sy = 200 * math.sin(angle)
-                CreateShoot("enemy", enemy.x, enemy.y, sx, sy)
-            end
-        elseif enemy.type == 3 then
-            if timer <= 0 then
-                timer = math.random(2, 4)
-                local sx, sy
-                local angle
-                angle = math.angle(enemy.x, enemy.y, player.x, player.y)
-                sx = 75 * math.cos(angle)
-                sy = 75 * math.sin(angle)
-                CreateShoot("enemy", enemy.x, enemy.y, sx, sy)
+    ----------
+    -- SHOOTS --
+    for n = #listShoots, 1, -1 do
+        local shoot = listShoots[n]
+        if shoot.type == "player" then
+            local nEnemy
+            for nEnemy = #listEnemies, 1, -1 do
+                local enemy = listEnemies[nEnemy]
+                if collide(shoot, enemy) then
+                    shoot.delete = true
+                    table.remove(listShoots, n)
+                end
+                if enemy.type == 1 and collide(enemy, shoot) then
+                    enemy.delete = true
+                    table.remove(listEnemies, nEnemy)
+                end
             end
         end
     end
+    ----------
+    -- ENEMIES --
+    for n = #listEnemies, 1, -1 do
+        local enemy = listEnemies[n]
+        local shoot_x, shoot_y
+        local angle = math.angle(enemy.x, enemy.y, player.x, player.y)
+
+        if enemy.type == 1 then
+            shoot_x = 150 * math.cos(angle)
+            shoot_y = 150 * math.sin(angle)
+
+            if timer <= 0 then
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+            end
+
+            enemy.x = enemy.x + enemy.speed * dt
+        elseif enemy.type == 2 then
+            shoot_x = 200 * math.cos(angle)
+            shoot_y = 200 * math.sin(angle)
+
+            if timer <= 0 then
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+            end
+        elseif enemy.type == 3 then
+            sx = 150 * math.cos(angle)
+            sy = 150 * math.sin(angle)
+
+            if timer <= 0 then
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+            end
+        end
+    end
+    ----------
+    PurgeSprites(dt)
     ----------
     PlayerController(dt)
     ----------
@@ -143,20 +189,18 @@ end
 
 function love.draw()
     ----------
-    DrawShoot()
+    DrawSprites(listSprites)
     ----------
-    DrawSprites()
-    ----------
-    love.graphics.print("Prochain tir : " .. math.floor(timer), 10, 32)
+    love.graphics.print("Timer : " .. math.ceil(timer), 1, 17)
 end
 
 function love.mousepressed(x, y, button)
     if button == 1 then
         local sx, sy
         local angle = math.angle(player.x, player.y, x, y)
-        sx = 250 * math.cos(angle)
-        sy = 250 * math.sin(angle)
-        CreateShoot("player", player.x, player.y, sx, sy)
+        sx = 200 * math.cos(angle)
+        sy = 200 * math.sin(angle)
+        CreateShoot(listShoots, "player", player.x, player.y, sx, sy)
     end
 end
 
