@@ -50,6 +50,8 @@ player.speed = 0
 local listEnemies = {}
 local listShoots = {}
 
+local listZonesSpawn = {}
+
 local SpritesManager = require("SpritesManager")
 local ShootManager = require("ShootManager")
 
@@ -102,6 +104,31 @@ end
 
 function love.load()
     init()
+    ----------
+    print("Affichage des zones de spawn")
+    ----------
+    listZonesSpawn[1] = {
+        x = screenWidth / 2,
+        y = 16 + 5,
+        angle = math.pi / 2
+    }
+    listZonesSpawn[2] = {
+        x = (screenWidth - 16) - 5,
+        y = screenHeight / 2,
+        angle = math.pi
+    }
+    listZonesSpawn[3] = {
+        x = screenWidth / 2,
+        y = (screenHeight - 16) - 5,
+        angle = math.pi * 1.5
+    }
+    listZonesSpawn[4] = {
+        x = 16 + 5,
+        y = screenHeight / 2,
+        angle = 0
+    }
+    ----------
+    print("Affichage des zones de spawn")
     ----------
     print("Chargement des entités...")
     ----------
@@ -210,6 +237,12 @@ function love.draw()
     ----------
     DrawSprites(listSprites)
     ----------
+    local z
+    for z = 1, #listZonesSpawn do
+        local zoneSpawn = listZonesSpawn[z]
+        love.graphics.rectangle("fill", zoneSpawn.x - 16, zoneSpawn.y - 16, 32, 32)
+    end
+    ----------
     -- TIMER SHOOT ENEMIES
     local n
     local y = 17
@@ -236,6 +269,6 @@ end
 
 function love.keypressed(key)
     ----------
-    print(key)
+    -- print(key)
     ----------
 end
