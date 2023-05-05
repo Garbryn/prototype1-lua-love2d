@@ -74,6 +74,7 @@ function CreateEnemy(pType, pX, pY)
     local enemy = CreateSprites(nameImage, pX, pY)
     enemy.type = pType
     enemy.timerShoot = 0
+    enemy.timer = enemy.timerShoot
     enemy.angle = 0
     enemy.speed = 0
 
@@ -97,7 +98,7 @@ function StartGame()
     CreateEnemy(2, 200, 400)
     CreateEnemy(3, 500, 50)
     ----------
-    timer = 10
+    timer = 2
     ----------
 end
 
@@ -127,7 +128,6 @@ function love.update(dt)
     ----------
     UpdateShoot(listShoots, screenWidth, screenHeight, dt)
     ----------
-    timer = timer - dt
     local n
     ----------
     -- SHOOTS --
@@ -147,6 +147,12 @@ function love.update(dt)
                 end
             end
         end
+        if shoot.type == "enemy" then
+            if collide(shoot, player) then
+                shoot.delete = true
+                table.remove(listShoots, n)
+            end
+        end
     end
     ----------
     -- ENEMIES --
@@ -154,29 +160,34 @@ function love.update(dt)
         local enemy = listEnemies[n]
         local shoot_x, shoot_y
         local angle = math.angle(enemy.x, enemy.y, player.x, player.y)
+        enemy.timer = enemy.timer - dt
 
         if enemy.type == 1 then
-            shoot_x = 150 * math.cos(angle)
-            shoot_y = 150 * math.sin(angle)
+            enemy.timerShoot = math.random(0.5, 1)
+            if enemy.timer <= 0 then
+                enemy.timer = enemy.timerShoot
+                shoot_x = 150 * math.cos(angle)
+                shoot_y = 150 * math.sin(angle)
 
-            if timer <= 0 then
-                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, shoot_x, shoot_y, angle)
             end
-
-            enemy.x = enemy.x + enemy.speed * dt
         elseif enemy.type == 2 then
-            shoot_x = 200 * math.cos(angle)
-            shoot_y = 200 * math.sin(angle)
+            enemy.timerShoot = math.random(1, 1.5)
+            if enemy.timer <= 0 then
+                enemy.timer = enemy.timerShoot
+                shoot_x = 200 * math.cos(angle)
+                shoot_y = 200 * math.sin(angle)
 
-            if timer <= 0 then
-                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, shoot_x, shoot_y, angle)
             end
         elseif enemy.type == 3 then
-            sx = 150 * math.cos(angle)
-            sy = 150 * math.sin(angle)
+            enemy.timerShoot = math.random(1.5, 2)
+            if enemy.timer <= 0 then
+                enemy.timer = enemy.timerShoot
+                shoot_x = 150 * math.cos(angle)
+                shoot_y = 150 * math.sin(angle)
 
-            if timer <= 0 then
-                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, sx, sy)
+                CreateShoot(listShoots, "enemy", enemy.x, enemy.y, shoot_x, shoot_y, angle)
             end
         end
     end
@@ -191,16 +202,23 @@ function love.draw()
     ----------
     DrawSprites(listSprites)
     ----------
-    love.graphics.print("Timer : " .. math.ceil(timer), 1, 17)
+    local n
+    local y = 17
+    for n = 1, #listEnemies do
+        local enemy = listEnemies[n]
+        love.graphics.print("Timer tir enemy " .. tostring(n) .. " : " .. math.floor(enemy.timer * 10) / 10, 1, y)
+        y = y + 17
+    end
+    ----------
 end
 
 function love.mousepressed(x, y, button)
     if button == 1 then
-        local sx, sy
+        local shoot_x, shoot_y
         local angle = math.angle(player.x, player.y, x, y)
-        sx = 200 * math.cos(angle)
-        sy = 200 * math.sin(angle)
-        CreateShoot(listShoots, "player", player.x, player.y, sx, sy)
+        shoot_x = 200 * math.cos(angle)
+        shoot_y = 200 * math.sin(angle)
+        CreateShoot(listShoots, "player", player.x, player.y, shoot_x, shoot_y, player.angle)
     end
 end
 

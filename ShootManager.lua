@@ -1,6 +1,6 @@
 local ShootManager = {}
 
-function CreateShoot(pList, pType, pX, pY, pSx, pSy)
+function CreateShoot(pList, pType, pX, pY, pSpeed_x, pSpeed_y, pAngle)
     local nameImage
 
     if pType == "player" then
@@ -11,9 +11,11 @@ function CreateShoot(pList, pType, pX, pY, pSx, pSy)
     local shoot = CreateSprites(nameImage, pX, pY)
 
     shoot.type = pType
+    shoot.timer = 0
 
-    shoot.speed_x = pSx
-    shoot.speed_y = pSy
+    shoot.speed_x = pSpeed_x
+    shoot.speed_y = pSpeed_y
+    shoot.angle = pAngle
 
     table.insert(pList, shoot)
 end
