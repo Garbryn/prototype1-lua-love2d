@@ -53,7 +53,8 @@ local listShoots = {}
 local SpritesManager = require("SpritesManager")
 local ShootManager = require("ShootManager")
 
-local timer = 0
+IntervalSpawn = 5
+local timerSpawn = IntervalSpawn
 
 function init()
     screenWidth = love.graphics.getWidth()
@@ -61,6 +62,7 @@ function init()
 end
 
 function CreateEnemy(pType, pX, pY)
+    print("Create enemy " .. tostring(pType))
     local nameImage
 
     if pType == 1 then
@@ -94,11 +96,7 @@ function StartGame()
     player = CreateSprites("player", screenWidth / 2, screenHeight / 2)
     player.speed = 200
     ----------
-    CreateEnemy(1, 150, 200)
-    CreateEnemy(2, 200, 400)
-    CreateEnemy(3, 500, 50)
-    ----------
-    timer = 2
+
     ----------
 end
 
@@ -155,11 +153,21 @@ function love.update(dt)
         end
     end
     ----------
+    timerSpawn = timerSpawn - dt
+    local random_x = math.random(0, screenWidth)
+    local random_y = math.random(0, screenHeight)
+    local random_type = math.random(1, 3)
+    if timerSpawn <= 0 then
+        CreateEnemy(random_type, random_x, random_y)
+        timerSpawn = IntervalSpawn
+    end
+    ----------
     -- ENEMIES --
     for n = #listEnemies, 1, -1 do
         local enemy = listEnemies[n]
         local shoot_x, shoot_y
         local angle = math.angle(enemy.x, enemy.y, player.x, player.y)
+
         enemy.timer = enemy.timer - dt
 
         if enemy.type == 1 then
@@ -202,6 +210,7 @@ function love.draw()
     ----------
     DrawSprites(listSprites)
     ----------
+    -- TIMER SHOOT ENEMIES
     local n
     local y = 17
     for n = 1, #listEnemies do
@@ -209,6 +218,9 @@ function love.draw()
         love.graphics.print("Timer tir enemy " .. tostring(n) .. " : " .. math.floor(enemy.timer * 10) / 10, 1, y)
         y = y + 17
     end
+    ----------
+    -- TIMER SPAWN ENEMIES
+    love.graphics.print("Spawn ennemy in : " .. math.ceil(timerSpawn) .. "s", 1, y + 17)
     ----------
 end
 
