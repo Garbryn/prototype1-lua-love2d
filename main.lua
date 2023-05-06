@@ -83,11 +83,11 @@ function CreateEnemy(pType, pX, pY)
     enemy.speed = 0
 
     if pType == 1 then
-        enemy.speed = 100
+        enemy.speed = 50
     elseif pType == 2 then
-        enemy.speed = 150
+        enemy.speed = 75
     elseif pType == 3 then
-        enemy.speed = 200
+        enemy.speed = 25
     end
 
     table.insert(listEnemies, enemy)
@@ -181,8 +181,10 @@ function love.update(dt)
     end
     ----------
     timerSpawn = timerSpawn - dt
-    local random_x = math.random(0, screenWidth)
-    local random_y = math.random(0, screenHeight)
+    local dice = math.random(1, #listZonesSpawn)
+    local random_x = listZonesSpawn[dice].x
+    local random_y = listZonesSpawn[dice].y
+
     local random_type = math.random(1, 3)
     if timerSpawn <= 0 then
         CreateEnemy(random_type, random_x, random_y)
@@ -193,11 +195,17 @@ function love.update(dt)
     for n = #listEnemies, 1, -1 do
         local enemy = listEnemies[n]
         local shoot_x, shoot_y
+        local speed_x, speed_y
         local angle = math.angle(enemy.x, enemy.y, player.x, player.y)
 
         enemy.timer = enemy.timer - dt
 
         if enemy.type == 1 then
+            speed_x = (enemy.speed * dt) * math.cos(angle)
+            speed_y = (enemy.speed * dt) * math.sin(angle)
+            enemy.x = enemy.x + speed_x
+            enemy.y = enemy.y + speed_y
+
             enemy.timerShoot = math.random(0.5, 1)
             if enemy.timer <= 0 then
                 enemy.timer = enemy.timerShoot
@@ -207,6 +215,11 @@ function love.update(dt)
                 CreateShoot(listShoots, "enemy", enemy.x, enemy.y, shoot_x, shoot_y, angle)
             end
         elseif enemy.type == 2 then
+            speed_x = (enemy.speed * dt) * math.cos(angle)
+            speed_y = (enemy.speed * dt) * math.sin(angle)
+            enemy.x = enemy.x + speed_x
+            enemy.y = enemy.y + speed_y
+
             enemy.timerShoot = math.random(1, 1.5)
             if enemy.timer <= 0 then
                 enemy.timer = enemy.timerShoot
@@ -216,6 +229,11 @@ function love.update(dt)
                 CreateShoot(listShoots, "enemy", enemy.x, enemy.y, shoot_x, shoot_y, angle)
             end
         elseif enemy.type == 3 then
+            speed_x = (enemy.speed * dt) * math.cos(angle)
+            speed_y = (enemy.speed * dt) * math.sin(angle)
+            enemy.x = enemy.x + speed_x
+            enemy.y = enemy.y + speed_y
+
             enemy.timerShoot = math.random(1.5, 2)
             if enemy.timer <= 0 then
                 enemy.timer = enemy.timerShoot
@@ -235,13 +253,13 @@ end
 
 function love.draw()
     ----------
-    DrawSprites(listSprites)
-    ----------
     local z
     for z = 1, #listZonesSpawn do
         local zoneSpawn = listZonesSpawn[z]
         love.graphics.rectangle("fill", zoneSpawn.x - 16, zoneSpawn.y - 16, 32, 32)
     end
+    ----------
+    DrawSprites(listSprites)
     ----------
     -- TIMER SHOOT ENEMIES
     local n
